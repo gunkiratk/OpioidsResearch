@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Page</title>
+    <style>
+        /* Center the form vertically */
+        body {
+            background-color: #f1f1f1;
+        }
+        label {
+        width: 180px;
+        display: inline-block;
+        }
+
+        textarea{
+            vertical-align: middle;
+        }
+        select {
+        width: 150px;
+        height: 150px;
+        margin: 10px;
+        } 
+        button {
+            display: block;
+            margin: 0 auto;
+            width: 200px;
+            height: 50px;
+            font-size: 20px;
+        }
+        .logout-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1><u>User {{ user_id }} : {{ user_name }}</u></h1>
+    </div>
+
+    <form method="post" action="/submit">
+        <input type="hidden" name="length" value="{{length}}">
+        <input type="hidden" name="username_auth" value="{{username_auth}}">
+        <input type="hidden" name="email_auth" value="{{email_auth}}">
+        {% for i, item in data_posts %}
+            <br>
+            <br>
+            <h2><u>Post : {{i+1}}</u></h2>
+            <p><b><u>Title</u></b>: {{item.title}}</p>
+            <p><b><u>Time</u></b>: {{item.time}}</p>
+            <p><b><u>Body</u></b>: {{item.body}}</p>
+            <input type="hidden" name="Title{{i+1}}" value="{{item.title}}">
+            <input type="hidden" name="Time{{i+1}}" value="{{item.time}}">
+            <input type="hidden" name="Body{{i+1}}" value="{{item.body}}">
+            <input type="hidden" name="User_id{{i+1}}" value="{{ user_id }}">
+            <input type="hidden" name="User_name{{i+1}}" value="{{ user_name }}">
+            <input type="hidden" name="Post_id{{i+1}}" value="{{ item.post_id }}">
+            <label for="answer{{i+1}}"><b><u>Select your label</u></b>:</label>
+            <select id="answer{{i+1}}" name="answer{{i+1}}" required>
+                <option value="" selected disabled hidden>Select option</option>
+                <option value="Addiction">Addiction</option>
+                <option value="Relapse">Relapse</option>
+                <option value="Recovery">Recovery</option>
+                <option value="Misuse">Misuse</option>
+                <option value="Medical Use">Medical Use</option>
+                <option value="Not Using">Not Using</option>
+            </select>
+            <br>
+            <label for="Explanation{{i+1}}"><b><u>Explanation</u></b>:</label>
+            <textarea id="Explanation{{i+1}}"  name="Explanation{{i+1}}" rows="10" cols="100" required></textarea><br><br><br><br>
+        {% endfor %}
+        <button id="submit" type="submit">Submit and Next</button>
+        </form>
+
+        <form method="post" action="/logout">
+            <button class="logout-button">Logout</button>
+        </form>
+</body>
+</html>

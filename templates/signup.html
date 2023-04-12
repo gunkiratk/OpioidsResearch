@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+    <style>
+        /* Center the form vertically */
+        body {
+            background-color: #f1f1f1;
+        }
+  
+    </style>
+</head>
+<body>
+    <center>
+    <h1>Sign Up</h1>
+    <form method="POST">
+        <label>Username:</label>
+        <input type="text" name="username"><br><br>
+        <label>Email:</label>
+        <input type="email" name="email"><br><br>
+        <label>Password:</label>
+        <input type="password" name="password"><br><br>
+        <input type="submit" value="Sign Up">
+    </form>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+</center>
+</body>
+</html>
