@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 import pymongo
 import urllib 
-import random, base64
+from util import get_user_posts, encode_text, decode_text
 
 mongo_uri = "mongodb+srv://gk2605:"+ urllib.parse.quote("Gunkirat@16") +"@cluster0.sgvz48r.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(mongo_uri)
@@ -12,6 +12,7 @@ app.secret_key = 'SECRET_KEY'
 
 username_auth = ""
 email_auth = ""
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -26,7 +27,7 @@ def login():
         users = list(cursor_user)
         # Check if the username and password are correct
         for user in users:
-            if user['username'] == username and decode(user['password']) == password:
+            if user['username'] == username and decode_text(user['password']) == password:
                 username_auth = user['username']
                 email_auth = user["email"]
                 # Redirect the user to the dashboard
@@ -45,7 +46,7 @@ def signup():
 
         db = client.OpioidsData
         collection_User = db.Annotators
-        item = {'username': username, 'email': email, 'password': encode(password)}
+        item = {'username': username, 'email': email, 'password': encode_text(password)}
         # Add the new user to the list of users
         rec_id1 = collection_User.insert_one(item)
 
@@ -66,7 +67,7 @@ def index():
 
 @app.route('/form-page')
 def form_page():
-    data_posts, user_id, user_id_count, user_name = get_user_posts()
+    data_posts, user_id, user_id_count, user_name = get_user_posts(client)
     username_auth = request.args.get('username_auth')
     email_auth = request.args.get('email_auth')
     return render_template('form.html',data_posts = enumerate(data_posts), user_id = user_id, user_name = user_name, length = len(data_posts), username_auth= username_auth, email_auth=email_auth)
@@ -115,39 +116,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-def get_user_posts():
-    db = client.OpioidsData
-    collection_PostAnnotatedCounter = db.PostsAnnotatedCounter
-    collection_Posts = db.Posts
-
-    cursor_PostAnnotatedCounter = collection_PostAnnotatedCounter.find( { 'count': { '$lt': 3 } } )
-    data_PostAnnotatedCounter =  list(cursor_PostAnnotatedCounter)
-    random_idx = random.randrange(0, len(data_PostAnnotatedCounter))
-    record_user = data_PostAnnotatedCounter[random_idx]
-
-    user_id = record_user['user_id']
-    user_id_count = record_user['count']
-    user_name = record_user['user_name']
-
-    cursor_Posts = collection_Posts.find({'user_id':user_id})
-    data_posts =  list(cursor_Posts)
-    data_posts_sorted = sorted(data_posts, key = lambda x:x['time'])
-    data_posts_sorted_filtered = []
-    for i in data_posts_sorted:
-        del i["_id"]
-        data_posts_sorted_filtered.append(i)
-    return data_posts_sorted_filtered, user_id, user_id_count, user_name
-
-
-def encode(text):
-    message_bytes = text.encode('ascii')
-    base64_bytes = base64.b64encode(message_bytes)
-    base64_message = base64_bytes.decode('ascii')
-    return base64_message
-
-def decode(text):
-    base64_bytes = text.encode('ascii')
-    message_bytes = base64.b64decode(base64_bytes)
-    message = message_bytes.decode('ascii')
-    return message
